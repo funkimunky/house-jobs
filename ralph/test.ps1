@@ -48,8 +48,15 @@ function New-Fixture {
 
 function codex {
     $input | Out-Null
-    $global:ralphTestagentCalls++
     $arguments = @($args)
+    Assert ($arguments -contains 'features.prefer_mxc=true') 'MXC preference was omitted.'
+    Assert ($arguments -contains 'shell_environment_policy.experimental_use_profile=false') 'Shell profile isolation was omitted.'
+    if ($arguments -contains 'sandbox') {
+        $global:LASTEXITCODE = if ($global:ralphTestscenario -eq 'sandbox-error') { 1 } else { 0 }
+        'Fixture sandbox tools'
+        return
+    }
+    $global:ralphTestagentCalls++
     Assert ($arguments -contains 'workspace-write') 'Agent sandbox was omitted.'
     $outputPath = $arguments[[array]::IndexOf($arguments, '--output-last-message') + 1]
     $issue = Get-ChildItem "$global:ralphTestfixture/issues" -Filter '*.md' -File | Sort-Object Name | Select-Object -First 1
@@ -58,6 +65,7 @@ function codex {
         $issue = @{ Name = "github-$number.md" }
     }
     $status = 'DONE'
+    if ($global:ralphTestscenario -eq 'success') { $status = 'READY_FOR_VERIFICATION' }
     if ($global:ralphTestscenario -eq 'blocked') { $status = 'BLOCKED' }
     if ($global:ralphTestscenario -notin @('blocked', 'no-progress')) {
         "Implemented $($issue.Name)" | Add-Content "$global:ralphTestfixture/app.txt"
@@ -103,11 +111,12 @@ Assert ((Invoke-FixtureGit @('rev-list', '--count', 'HEAD')) -eq '2') 'Expected 
 Assert (@(Invoke-FixtureGit @('status', '--porcelain')).Count -eq 0) 'Successful run left changes.'
 Assert ($global:ralphTestcheckCalls -eq 1) 'Verification was skipped.'
 
-foreach ($name in @('blocked', 'no-progress', 'failed-check', 'invalid-issue', 'protected', 'cli-error')) {
+foreach ($name in @('blocked', 'no-progress', 'failed-check', 'invalid-issue', 'protected', 'cli-error', 'sandbox-error')) {
     New-Fixture $name
     Run-Fixture -ShouldFail
     Assert ((Invoke-FixtureGit @('rev-list', '--count', 'HEAD')) -eq '1') "$name created a commit."
     Assert (Test-Path "$global:ralphTestfixture/issues/001-task.md") "$name archived the issue."
+    if ($name -eq 'sandbox-error') { Assert ($global:ralphTestagentCalls -eq 0) 'Failed sandbox check started an agent.' }
 }
 
 New-Fixture 'dirty'

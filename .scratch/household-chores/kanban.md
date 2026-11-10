@@ -46,7 +46,6 @@ None.
 
 Published to GitHub Issues. Use GitHub to track ongoing work; these local tickets retain the plan snapshot and issue links.
 
-
 ## GitHub issues
 
 - [01: Create a household and access child profiles](https://github.com/funkimunky/house-jobs/issues/1)

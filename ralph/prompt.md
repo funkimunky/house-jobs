@@ -5,14 +5,19 @@
    requirements within these rules. Select exactly one eligible issue, prioritizing
    bugs, development infrastructure, small end-to-end features, then polish.
 2. Read the selected issue and relevant code. Implement its acceptance criteria.
-   Add meaningful regression coverage for behavior changes and run affected checks.
+   Add meaningful regression coverage for behavior changes and run affected checks
+   when supported by the sandbox.
    Use the project's existing commands and dependencies.
 3. Return JSON matching the supplied schema. Set `issue` to the selected issue's
-   filename only (for example `001-example.md`). Use `DONE` only when all acceptance
-   criteria are implemented and affected checks pass. Use `BLOCKED` for ambiguity,
-   missing access, failing checks, or a required human decision; explain the blocker
-   in `summary`. Use `NO_MORE_TASKS` with an empty issue only if no supplied task is
-   eligible.
+   filename only (for example `001-example.md`). Use `READY_FOR_VERIFICATION` when
+   implementation and regression coverage are ready for the runner's full checks.
+   Include checks run and their results in `summary`. Windows MXC can incorrectly
+   report writable directories as unwritable to PHP, blocking Pint or Symfony
+   Process; report that specific infrastructure limitation in the summary and hand
+   off verification to the runner. A failed assertion, syntax error, or application
+   error still needs fixing. Use `BLOCKED` for unresolved requirements, missing code
+   access, application failures, or a required human decision; explain the blocker
+   in `summary`. Use `NO_MORE_TASKS` with an empty issue only if no supplied task is eligible.
 
 The runner owns full verification, issue archival, and the commit. Leave the issue
 file in place. Do not commit, stage changes, push, merge, deploy, or start another

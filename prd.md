@@ -62,15 +62,15 @@ After an occurrence expires, an adult can approve or reject its pending submissi
 
 ### Lifecycle
 
-| State | Meaning | Next actions |
-| --- | --- | --- |
-| Available | Open to any child | Claim or expire |
-| Claimed | Reserved by one child | Submit, release or expire |
-| Awaiting approval | Submitted before expiry | Approve, reject, or return before expiry |
-| Returned | Adult requests corrections | Resubmit, release or expire |
-| Approved | Reward credited | Audited correction |
-| Rejected | No reward awarded | Retain history |
-| Expired | Unsubmitted work reached its next occurrence | Retain history |
+| State             | Meaning                                      | Next actions                             |
+| ----------------- | -------------------------------------------- | ---------------------------------------- |
+| Available         | Open to any child                            | Claim or expire                          |
+| Claimed           | Reserved by one child                        | Submit, release or expire                |
+| Awaiting approval | Submitted before expiry                      | Approve, reject, or return before expiry |
+| Returned          | Adult requests corrections                   | Resubmit, release or expire              |
+| Approved          | Reward credited                              | Audited correction                       |
+| Rejected          | No reward awarded                            | Retain history                           |
+| Expired           | Unsubmitted work reached its next occurrence | Retain history                           |
 
 ### Edge case requiring implementation confirmation
 
@@ -80,11 +80,11 @@ A child may have claimed another chore before an earlier submission is returned.
 
 Show each child's amounts separately:
 
-| Amount | Meaning |
-| --- | --- |
-| Awaiting approval | Potential rewards for pending submissions |
-| Available to pay | Approved earnings less payments and applicable corrections |
-| Paid | Recorded payments after corrections |
+| Amount            | Meaning                                                    |
+| ----------------- | ---------------------------------------------------------- |
+| Awaiting approval | Potential rewards for pending submissions                  |
+| Available to pay  | Approved earnings less payments and applicable corrections |
+| Paid              | Recorded payments after corrections                        |
 
 Adults pay outside the app and record the amount, date and payment method. Partial payments are supported, up to the available-to-pay balance. The app does not transfer money.
 
@@ -108,15 +108,15 @@ The target measures earning progress, not actual savings or spending.
 
 ## Main screens
 
-| Screen | Content |
-| --- | --- |
-| Child chore board | Available chores, rewards and instructions |
-| Child work | Claims, returned work and pending submissions |
-| Child earnings | Balances and payment history |
-| Child target | Target details and earned progress |
-| Adult chores | Create, edit, pause and archive |
-| Adult verification | Submission details and verification actions |
-| Adult payments | Child balances, payments and corrections |
+| Screen             | Content                                              |
+| ------------------ | ---------------------------------------------------- |
+| Child chore board  | Available chores, rewards and instructions           |
+| Child work         | Claims, returned work and pending submissions        |
+| Child earnings     | Balances and payment history                         |
+| Child target       | Target details and earned progress                   |
+| Adult chores       | Create, edit, pause and archive                      |
+| Adult verification | Submission details and verification actions          |
+| Adult payments     | Child balances, payments and corrections             |
 | Household settings | Child profiles, PIN management and adult invitations |
 
 Reminders and updates appear inside the app. Email and push reminders are excluded. Adult invitations remain part of account setup.
@@ -157,4 +157,3 @@ One-off jobs; unpaid chores; individual assignments; age eligibility; variable r
 ## Technical design follow-up
 
 Use the existing repository's stack and conventions. Select hosting and define adult authentication, PIN recovery, invitation handling and shared-device sessions during technical design. Resolve the returned-work conflict above before implementing that workflow.
-

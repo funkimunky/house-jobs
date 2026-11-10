@@ -4,7 +4,8 @@ param(
     [int] $Iterations = 3,
     [ValidateSet('GitHub', 'Local')]
     [string] $Source = 'GitHub',
-    [switch] $DryRun
+    [switch] $DryRun,
+    [switch] $CheckEnvironment
 )
 
-& (Join-Path $PSScriptRoot 'run.ps1') -Iterations $Iterations -Source $Source -DryRun:$DryRun
+& (Join-Path $PSScriptRoot 'run.ps1') -Iterations $Iterations -Source $Source -DryRun:$DryRun -CheckEnvironment:$CheckEnvironment

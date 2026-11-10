@@ -11,6 +11,26 @@ terminal, install the standalone CLI with `npm install --global @openai/codex`,
 then run `codex login`. The runner also checks `%APPDATA%\npm\codex.cmd` if PATH
 does not contain Codex, so an already-open terminal can use that user installation.
 
+The runner prefers the native MXC Windows sandbox when supported, retains the
+workspace permission boundary, and inherits the core environment including PATH
+without loading shell profiles. This avoids legacy sandbox-account access failures
+with Herd and shell profiles that change the working directory or environment.
+These overrides apply only to the runner; your saved Codex configuration is unchanged.
+Tool processes use ignored `ralph/runs/tmp/` for temporary files to keep writes
+inside the workspace, including Pint's temporary-file renames. The calling shell's
+TEMP and TMP values are restored when the runner finishes.
+
+Before each batch it executes PHP, Composer, Node, npm, and Git inside the same
+sandbox. If that fails, the batch stops before any model session starts. Test this
+independently, even with uncommitted work, using:
+
+```powershell
+pwsh -NoProfile -File .\ralph\once.ps1 -CheckEnvironment
+```
+
+This check makes no commits or GitHub requests. On devices without MXC, Codex
+uses its configured legacy fallback, which must be provisioned to access the tools.
+
 ## Existing GitHub Kanban (default)
 
 GitHub Issues in `funkimunky/house-jobs` are the ongoing source of task bodies,
@@ -37,16 +57,20 @@ Pass `-Source Local` to use approved files directly in `issues/` instead:
 
 ```markdown
 # 001-example
+
 Mode: AFK
 Dependencies: none
 
 ## Goal
+
 A small end-to-end change with decisions already resolved.
 
 ## Acceptance criteria
+
 - Describe observable behavior and required regression coverage.
 
 ## Verification
+
 - Name any focused checks needed in addition to the full CI check.
 ```
 
@@ -71,10 +95,16 @@ they accept a dirty tree and do not invoke Codex, checks, or commits. GitHub dry
 runs still read GitHub, so they need network access and `gh` authentication.
 
 Each iteration uses a fresh Codex session. The agent implements one task and
-returns structured JSON. The runner rejects unexpected results or no progress,
+returns structured JSON with `READY_FOR_VERIFICATION`. The runner rejects unexpected results or no progress,
 runs `composer run ci:check`, archives the task in `issues/done/`, and commits the
 changes. It never pushes, merges, or deploys. Tasks that change runner files,
 dependencies, or verification configuration need human implementation instead.
+
+The final CI command runs in the runner's normal terminal process. PHP's
+`is_writable()` can return false inside MXC even when file creation and renaming
+work, so Pint/Symfony Process may be unable to run there. The agent reports that
+infrastructure limitation and hands off checks; the runner still requires the
+complete CI command to pass before archiving or committing anything.
 
 Inputs, JSON events, final results, stderr, and check output are saved under ignored
 `ralph/runs/<run-id>/`. Blockers, CLI errors, invalid results, unexpected commits,

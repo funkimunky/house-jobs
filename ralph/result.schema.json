@@ -1,7 +1,15 @@
 {
     "type": "object",
     "properties": {
-        "status": { "type": "string", "enum": ["DONE", "BLOCKED", "NO_MORE_TASKS"] },
+        "status": {
+            "type": "string",
+            "enum": [
+                "READY_FOR_VERIFICATION",
+                "DONE",
+                "BLOCKED",
+                "NO_MORE_TASKS"
+            ]
+        },
         "issue": { "type": "string" },
         "summary": { "type": "string" }
     },

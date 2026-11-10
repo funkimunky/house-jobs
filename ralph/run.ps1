@@ -5,7 +5,8 @@ param(
     [int] $Iterations = 1,
     [ValidateSet('GitHub', 'Local')]
     [string] $Source = 'GitHub',
-    [switch] $DryRun
+    [switch] $DryRun,
+    [switch] $CheckEnvironment
 )
 
 Set-StrictMode -Version Latest
@@ -13,6 +14,29 @@ $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $false
 $repository = Split-Path $PSScriptRoot -Parent
 $runLock = $null
+$originalTemp = $env:TEMP
+$originalTmp = $env:TMP
+$temporaryDirectory = Join-Path $PSScriptRoot 'runs/tmp'
+$codexConfiguration = @(
+    '-c', 'features.prefer_mxc=true',
+    '-c', 'shell_environment_policy.inherit=core',
+    '-c', 'shell_environment_policy.experimental_use_profile=false'
+    '-c', ('shell_environment_policy.set.TEMP=' + "'$temporaryDirectory'"),
+    '-c', ('shell_environment_policy.set.TMP=' + "'$temporaryDirectory'")
+)
+
+function Test-DevelopmentEnvironment {
+    param($CodexCommand)
+    New-Item -ItemType Directory -Path $temporaryDirectory -Force | Out-Null
+    $env:TEMP = $temporaryDirectory
+    $env:TMP = $temporaryDirectory
+    Write-Host 'Checking development tools inside the Codex workspace sandbox...'
+    & $CodexCommand @codexConfiguration sandbox --include-managed-config --permission-profile :workspace `
+        --cd $repository -- cmd.exe /d /c (Join-Path $PSScriptRoot 'check-tools.cmd') | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Sandbox tool check failed. PHP, Composer, Node, npm, and Git must work inside the sandbox. No agent was started. Review the output above and the Windows sandbox setup.'
+    }
+}
 
 function Invoke-Git {
     param([string[]] $Arguments)
@@ -84,6 +108,11 @@ try {
     if ([IO.Path]::GetFullPath($root) -ne [IO.Path]::GetFullPath($repository)) {
         throw 'Run Ralph from its repository checkout.'
     }
+    if ($CheckEnvironment) {
+        $codexCommand = & (Join-Path $PSScriptRoot 'resolve-codex.ps1')
+        Test-DevelopmentEnvironment -CodexCommand $codexCommand
+        return
+    }
     $eligible = @(Get-EligibleIssues)
     if ($DryRun) {
         Write-Host "Repository: $repository"
@@ -112,6 +141,7 @@ try {
     foreach ($command in @('composer')) {
         Get-Command $command -ErrorAction Stop | Out-Null
     }
+    Test-DevelopmentEnvironment -CodexCommand $codexCommand
 
     for ($iteration = 1; $iteration -le $Iterations; $iteration++) {
         $eligible = @(Get-EligibleIssues)
@@ -127,7 +157,7 @@ try {
         $prompt | Set-Content -LiteralPath (Join-Path $runDirectory 'input.md') -Encoding utf8
         $resultPath = Join-Path $runDirectory 'result.json'
         Write-Host "Iteration $iteration/$Iterations. Logs: $runDirectory"
-        $prompt | & $codexCommand exec --sandbox workspace-write --cd $repository --json `
+        $prompt | & $codexCommand @codexConfiguration exec --sandbox workspace-write --cd $repository --json `
             --output-schema (Join-Path $PSScriptRoot 'result.schema.json') `
             --output-last-message $resultPath - `
             2> (Join-Path $runDirectory 'stderr.log') |
@@ -135,7 +165,7 @@ try {
         if ($LASTEXITCODE -ne 0) { throw "Codex failed. Inspect $runDirectory; changes were preserved." }
         if (-not (Test-Path -LiteralPath $resultPath)) { throw 'Codex returned no result.' }
         $result = Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json
-        if ($result.status -ne 'DONE') {
+        if ($result.status -notin @('DONE', 'READY_FOR_VERIFICATION')) {
             throw "Runner stopped: $($result.status). $($result.summary)"
         }
         $selected = @($eligible | Where-Object { $_.Name -ceq $result.issue })
@@ -171,6 +201,8 @@ try {
     }
     Write-Host 'Iteration limit reached. Review changes before running another batch.'
 } finally {
+    $env:TEMP = $originalTemp
+    $env:TMP = $originalTmp
     if ($null -ne $runLock) { $runLock.Dispose() }
     Pop-Location
 }
