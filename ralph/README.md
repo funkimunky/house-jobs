@@ -6,6 +6,11 @@ Run in the existing development checkout; this
 uses Codex's workspace sandbox, not Docker. Install dependencies and establish a
 passing `composer run ci:check` baseline before unattended use.
 
+The desktop app's bundled CLI may only be on PATH inside Codex chats. For a normal
+terminal, install the standalone CLI with `npm install --global @openai/codex`,
+then run `codex login`. The runner also checks `%APPDATA%\npm\codex.cmd` if PATH
+does not contain Codex, so an already-open terminal can use that user installation.
+
 ## Existing GitHub Kanban (default)
 
 GitHub Issues in `funkimunky/house-jobs` are the ongoing source of task bodies,

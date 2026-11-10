@@ -33,7 +33,8 @@ function New-Fixture {
     $global:ralphTestagentCalls = 0
     $global:ralphTestcheckCalls = 0
     New-Item -ItemType Directory -Path "$global:ralphTestfixture/issues/done" -Force | Out-Null
-    Copy-Item -LiteralPath $source -Destination "$global:ralphTestfixture/ralph" -Recurse
+    New-Item -ItemType Directory -Path "$global:ralphTestfixture/ralph" | Out-Null
+    Get-ChildItem -LiteralPath $source -File | Copy-Item -Destination "$global:ralphTestfixture/ralph"
     '/ralph/runs/' | Set-Content "$global:ralphTestfixture/.gitignore"
     "# Task`nMode: AFK`nDependencies: none`n`nImplement the task." | Set-Content "$global:ralphTestfixture/issues/001-task.md"
     Invoke-FixtureGit @('init', '--quiet') | Out-Null
@@ -153,5 +154,22 @@ $global:ralphTestreviewed = $true
 Run-Fixture -Source GitHub -Iterations 3
 Assert ($global:ralphTestagentCalls -eq 2) 'Closed GitHub dependency did not unlock task.'
 Assert (Test-Path "$global:ralphTestfixture/issues/done/github-2.md") 'Second GitHub task snapshot missing.'
+
+Remove-Item Function:codex
+$originalPath = $env:PATH
+try {
+    $env:PATH = Join-Path $env:SystemRoot 'System32'
+    $fakeNpm = Join-Path $testRoot 'npm'
+    New-Item -ItemType Directory -Path $fakeNpm | Out-Null
+    '@echo fake codex' | Set-Content (Join-Path $fakeNpm 'codex.cmd')
+    $resolved = & (Join-Path $source 'resolve-codex.ps1') -NpmDirectory $fakeNpm
+    Assert ($resolved.Source -eq (Join-Path $fakeNpm 'codex.cmd')) 'User npm CLI fallback was not found without PATH.'
+    $missingMessage = ''
+    try { & (Join-Path $source 'resolve-codex.ps1') -NpmDirectory (Join-Path $testRoot 'missing') }
+    catch { $missingMessage = $_.Exception.Message }
+    Assert ($missingMessage -like '*npm install --global @openai/codex*') 'Missing CLI error did not explain installation.'
+} finally {
+    $env:PATH = $originalPath
+}
 
 Write-Host "All Ralph integration checks passed. Fixtures: $testRoot"

@@ -108,7 +108,8 @@ try {
         Write-Host 'No eligible AFK issues. HITL and dependency-blocked issues are left for review.'
         return
     }
-    foreach ($command in @('codex', 'composer')) {
+    $codexCommand = & (Join-Path $PSScriptRoot 'resolve-codex.ps1')
+    foreach ($command in @('composer')) {
         Get-Command $command -ErrorAction Stop | Out-Null
     }
 
@@ -126,7 +127,7 @@ try {
         $prompt | Set-Content -LiteralPath (Join-Path $runDirectory 'input.md') -Encoding utf8
         $resultPath = Join-Path $runDirectory 'result.json'
         Write-Host "Iteration $iteration/$Iterations. Logs: $runDirectory"
-        $prompt | & codex exec --sandbox workspace-write --cd $repository --json `
+        $prompt | & $codexCommand exec --sandbox workspace-write --cd $repository --json `
             --output-schema (Join-Path $PSScriptRoot 'result.schema.json') `
             --output-last-message $resultPath - `
             2> (Join-Path $runDirectory 'stderr.log') |
