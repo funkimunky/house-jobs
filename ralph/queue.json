@@ -1,0 +1,20 @@
+{
+    "repository": "funkimunky/house-jobs",
+    "readyLabel": "ready-for-agent",
+    "tasks": [
+        { "number": 1, "mode": "AFK", "dependencies": [] },
+        { "number": 2, "mode": "AFK", "dependencies": [1] },
+        { "number": 3, "mode": "AFK", "dependencies": [1] },
+        { "number": 4, "mode": "AFK", "dependencies": [3] },
+        { "number": 5, "mode": "AFK", "dependencies": [4] },
+        { "number": 6, "mode": "HITL", "dependencies": [5] },
+        { "number": 7, "mode": "AFK", "dependencies": [3] },
+        { "number": 8, "mode": "HITL", "dependencies": [3] },
+        { "number": 9, "mode": "AFK", "dependencies": [5] },
+        { "number": 10, "mode": "AFK", "dependencies": [9] },
+        { "number": 11, "mode": "AFK", "dependencies": [10] },
+        { "number": 12, "mode": "AFK", "dependencies": [5] },
+        { "number": 13, "mode": "AFK", "dependencies": [11, 12] },
+        { "number": 14, "mode": "HITL", "dependencies": [2, 6, 7, 8, 13] }
+    ]
+}
