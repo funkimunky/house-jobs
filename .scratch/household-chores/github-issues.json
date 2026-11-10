@@ -1,0 +1,86 @@
+[
+  {
+    "ticket": 1,
+    "url": "https://github.com/funkimunky/house-jobs/issues/1",
+    "number": 1,
+    "title": "01: Create a household and access child profiles"
+  },
+  {
+    "ticket": 2,
+    "url": "https://github.com/funkimunky/house-jobs/issues/2",
+    "number": 2,
+    "title": "02: Invite another adult"
+  },
+  {
+    "ticket": 3,
+    "url": "https://github.com/funkimunky/house-jobs/issues/3",
+    "number": 3,
+    "title": "03: Publish weekday chores to the child board"
+  },
+  {
+    "ticket": 4,
+    "url": "https://github.com/funkimunky/house-jobs/issues/4",
+    "number": 4,
+    "title": "04: Claim and release available chores"
+  },
+  {
+    "ticket": 5,
+    "url": "https://github.com/funkimunky/house-jobs/issues/5",
+    "number": 5,
+    "title": "05: Submit, approve and earn a reward"
+  },
+  {
+    "ticket": 6,
+    "url": "https://github.com/funkimunky/house-jobs/issues/6",
+    "number": 6,
+    "title": "06: Return work for corrections or reject it"
+  },
+  {
+    "ticket": 7,
+    "url": "https://github.com/funkimunky/house-jobs/issues/7",
+    "number": 7,
+    "title": "07: Publish monthly chores"
+  },
+  {
+    "ticket": 8,
+    "url": "https://github.com/funkimunky/house-jobs/issues/8",
+    "number": 8,
+    "title": "08: Edit, pause and archive recurring chores"
+  },
+  {
+    "ticket": 9,
+    "url": "https://github.com/funkimunky/house-jobs/issues/9",
+    "number": 9,
+    "title": "09: Record partial and full payments"
+  },
+  {
+    "ticket": 10,
+    "url": "https://github.com/funkimunky/house-jobs/issues/10",
+    "number": 10,
+    "title": "10: Correct payments with an audit trail"
+  },
+  {
+    "ticket": 11,
+    "url": "https://github.com/funkimunky/house-jobs/issues/11",
+    "number": 11,
+    "title": "11: Correct approved earnings safely"
+  },
+  {
+    "ticket": 12,
+    "url": "https://github.com/funkimunky/house-jobs/issues/12",
+    "number": 12,
+    "title": "12: Set and track an earning target"
+  },
+  {
+    "ticket": 13,
+    "url": "https://github.com/funkimunky/house-jobs/issues/13",
+    "number": 13,
+    "title": "13: Reflect earning corrections in targets"
+  },
+  {
+    "ticket": 14,
+    "url": "https://github.com/funkimunky/house-jobs/issues/14",
+    "number": 14,
+    "title": "14: Run the four-week household trial"
+  }
+]
